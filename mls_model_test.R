@@ -2,9 +2,9 @@
 ##### mls match prediction ###
 ###########################
 
-# simulating data and fitting a simple prediction of goals
+# Simulating data and fitting a simple prediction of goals
 
-# 1. Libraries and Data ----------------------
+# 1. Libraries and data ----------------------
 library(tidyverse)
 library(brms)
 
@@ -22,7 +22,7 @@ matches <-
         )
   )
 
-# 2. EMpty model ---------
+# 2. Empty model ---------
 m0 <- 
   brm(
     goals ~ 1 + (1|team),
@@ -32,7 +32,7 @@ m0 <-
     seed = 3
   )
 
-# 3. home field advantage ------
+# 3. Home field advantage ------
 m1 <- 
   brm(
     goals ~ 1 + home + (1|team),
