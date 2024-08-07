@@ -2,6 +2,8 @@
 ##### mls match prediction ###
 ###########################
 
+# simulating data and fitting a simple prediction of goals
+
 # 1. Libraries and Data ----------------------
 library(tidyverse)
 library(brms)
