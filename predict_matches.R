@@ -84,5 +84,5 @@ week_28_preds_summary <-
 
 names(week_28_preds_summary) <- unique(week_28$matchup)
 
-saveRDS(week_28_preds_summary, "m2_wk28_preds.rds")
+saveRDS(week_28_preds_summary, "models/m2_wk28_preds.rds")
 
