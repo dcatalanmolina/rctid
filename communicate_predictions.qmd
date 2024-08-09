@@ -1,0 +1,47 @@
+---
+title: "MLS Match Predictions"
+format: html
+editor: visual
+---
+
+```{r setup}
+# Libraries
+library(kableExtra)
+library(tidyverse)
+
+# Get predictions
+next_week <- readRDS("m2_wk28_preds.rds")
+
+# Create tbl
+next_week_tbl <- 
+  map_df(
+  .x = next_week,
+  ~tibble(
+    match = .x$matchup_probs$matchup,
+    pr_home_win = .x$matchup_probs$pr_home_win,
+    pr_upset = .x$matchup_probs$pr_upset
+  ) %>% 
+    bind_cols(., .x$pred_distribution %>% t())
+  ) %>% 
+  modify_if(is.numeric, ~round(.,2)) 
+
+
+```
+
+## Week 28 Predictions
+
+- Using a basic model that predicts the goal difference in each match. 
+- A positive goal difference means the home team is expected to score more goals.
+- Matches are sorted based on the probability that the away team scores more goals (an upset).
+
+```{r}
+next_week_tbl %>% 
+  rename(xgoal_diff = `50%`) %>% 
+  mutate(xgoal_diff_ci = paste("[", `25%`, ", ", `75%`, "]", sep = "")) %>% 
+  select(match, xgoal_diff, xgoal_diff_ci, pr_upset, pr_home_win) %>% 
+  arrange(desc(pr_upset)) %>% 
+  kbl(align = "lrrrr") %>% 
+  column_spec(2:5, width = "1in")
+  
+```
+
