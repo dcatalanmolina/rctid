@@ -7,20 +7,44 @@ library(tidyverse)
 library(brms)
 
 mls_24 <- readRDS("data/mls_24.rds")
+mls_24_defense <- readRDS("data/mls_24_defense.rds")
 
 # 2. Clean and explore data -----------
 
-### wide df, each row is a match
+## wide df, each row is a match
+
+mls_defense_summary <- 
+  mls_24_defense %>% 
+  select(
+    Squad, Mins_Per_90,TklW_Tackles, Tkl_percent_Challenges, Err
+  )
+
+away_defense_summary <- 
+  mls_defense_summary %>% 
+  filter(str_detect(Squad, "vs ")) %>% 
+  rename(Away = Squad) %>%
+  mutate(Away = str_remove(Away, "vs ")) %>% 
+  modify_at(
+    .at = c("TklW_Tackles", "Tkl_percent_Challenges", "Err"),
+    ~(.x - mean(.x))/sd(.x)
+  )
+
 mls_wide <- 
   mls_24 %>% 
   select(
-    Wk, Home, HomeGoals, Away, AwayGoals
+    Wk, Date, Home, HomeGoals, Away, AwayGoals
   ) %>% 
   mutate(
     goal_diff = HomeGoals - AwayGoals
+  ) %>% 
+  left_join(
+    ., away_defense_summary,
+    by = "Away"
   )
 
-# how many goals do each home allows?
+saveRDS(mls_wide, "data/mls_wide.rds")
+
+### Notes: how many goals does each home team allow?
 
 ## long df, each row is a team within a match
 home_goals <- 
@@ -113,3 +137,14 @@ m2 <-
   )
 
 saveRDS(m2, "models/m2.rds")
+
+m2.1 <- 
+  brm(
+    goal_diff ~ 1 + Tkl_percent_Challenges*Err + (1|Home) + (1|Away),
+    data = mls_wide,
+    warmup = 1000,
+    iter = 5000,
+    seed = 3
+  )
+
+saveRDS(m2.1, "models/m2_1.rds")
