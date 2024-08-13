@@ -4,13 +4,14 @@ format: html
 editor: visual
 ---
 
-```{r setup}
+```{r setup, echo=FALSE, message=FALSE}
 # Libraries
 library(kableExtra)
 library(tidyverse)
 
 # Get predictions
-next_week <- readRDS("m2_wk28_preds.rds")
+next_week <- readRDS("models/m2_wk28_preds.rds")
+defense_wins_chips <- readRDS("models/m2_wk28_preds_2_1.rds")
 
 # Create tbl
 next_week_tbl <- 
@@ -25,16 +26,27 @@ next_week_tbl <-
   ) %>% 
   modify_if(is.numeric, ~round(.,2)) 
 
-
+defense_wins_chips_tbl <- 
+  map_df(
+  .x = defense_wins_chips,
+  ~tibble(
+    match = .x$matchup_probs$matchup,
+    pr_home_win = .x$matchup_probs$pr_home_win,
+    pr_upset = .x$matchup_probs$pr_upset
+  ) %>% 
+    bind_cols(., .x$pred_distribution %>% t())
+  ) %>% 
+  modify_if(is.numeric, ~round(.,2)) 
 ```
 
 ## Week 28 Predictions
 
-- Using a basic model that predicts the goal difference in each match. 
-- A positive goal difference means the home team is expected to score more goals.
-- Matches are sorted based on the probability that the away team scores more goals (an upset).
+-   Using a basic model that predicts the goal difference in each match.
+-   A positive goal difference means the home team is expected to score more goals.
+-   Matches are sorted based on the probability that the away team scores more goals (an upset).
 
-```{r}
+
+```{r, echo=FALSE}
 next_week_tbl %>% 
   rename(xgoal_diff = `50%`) %>% 
   mutate(xgoal_diff_ci = paste("[", `25%`, ", ", `75%`, "]", sep = "")) %>% 
@@ -43,5 +55,20 @@ next_week_tbl %>%
   kbl(align = "lrrrr") %>% 
   column_spec(2:5, width = "1in")
   
+```
+
+### Defense Wins Championships
+- This model includes the number of tackles won by the away team and mistakes by the away team that resulted in a shot by the home team.
+-   A positive goal difference means the home team is expected to score more goals.
+-   Matches are sorted based on the probability that the away team scores more goals (an upset).
+
+```{r, echo=FALSE}
+defense_wins_chips_tbl %>% 
+  rename(xgoal_diff = `50%`) %>% 
+  mutate(xgoal_diff_ci = paste("[", `25%`, ", ", `75%`, "]", sep = "")) %>% 
+  select(match, xgoal_diff, xgoal_diff_ci, pr_upset, pr_home_win) %>% 
+  arrange(desc(pr_upset)) %>% 
+  kbl(align = "lrrrr") %>% 
+  column_spec(2:5, width = "1in")
 ```
 
