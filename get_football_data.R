@@ -27,6 +27,30 @@ mls_json <-
   mls %>% 
   resp_body_json()
 
+## get logos
+mls_get_logos <- function(x, n) {
+  team_name <- x$sports[[1]]$leagues[[1]]$teams[[n]]$team$abbreviation
+  
+  logo <- x$sports[[1]]$leagues[[1]]$teams[[n]]$team$logos[[1]]$href
+  
+  name_n_logo <- 
+    list(
+      team_name = team_name,
+      logo = logo
+    )
+  
+  return(name_n_logo)
+  
+}
+
+mls_team_logos <- 
+  map_df(
+    .x = 1:29,
+    ~mls_get_logos(x = mls_json, n = .x)
+  )
+
+saveRDS(mls_team_logos, "data/mls_team_logos.rds")
+
 ## NWSL -------------------
 espn_nwsl_team_details <- 
   "http://site.api.espn.com/apis/site/v2/sports/soccer/usa.nwsl/teams"
@@ -86,3 +110,15 @@ mls_24 <-
   )
 
 saveRDS(mls_24, "data/mls_24.rds")
+
+# Season-level stats from FBref -------------------
+
+## MLS
+mls_24_defense <- 
+  fb_season_team_stats(
+    country = "USA", gender = "M", 
+    season_end_year = 2024, tier = "1st",
+    stat_type = "defense"
+  )
+
+saveRDS(mls_24_defense, "data/mls_24_defense.rds")
