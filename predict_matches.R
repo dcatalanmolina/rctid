@@ -7,13 +7,15 @@ library(tidyverse)
 library(brms)
 library(tidybayes)
 
-
-
 m2 <- readRDS("models/m2.rds")
+m2.1 <- readRDS("models/m2_1.rds")
+
+# get match df
+mls_wide <- readRDS("data/mls_wide.rds")
 
 # get future matches
 future_matches <- 
-  readRDS("data/mls_24.rds") %>% 
+  mls_wide %>% 
   filter(Date > today())
 
 # 2. Predict single match ---------------
@@ -45,23 +47,30 @@ week_28 <-
   filter(Wk == "28") %>% 
   mutate(matchup = paste(Home, "vs", Away, sep = " "))
 
+# two ways of estimating pred values
 week_28_preds <- 
-  add_predicted_draws(
+  add_epred_draws(
     week_28,
     m2
+  )
+
+week_28_preds_2.1 <- 
+  add_epred_draws(
+    week_28,
+    m2.1
   )
 
 posterior_matchup_preds <- 
   function(df) {
     
     pred_distribution <- 
-      quantile(df$.prediction, probs = c(.10, .25, .50, .75, .90))
+      quantile(df$.epred, probs = c(.10, .25, .50, .75, .90))
     
     matchup_probs <- 
       df %>% 
       summarise(
-        pr_home_win = mean(if_else(.prediction > 0, 1, 0)),
-        pr_upset = mean(if_else(.prediction < 0, 1, 0))
+        pr_home_win = mean(if_else(.epred > 0, 1, 0)),
+        pr_upset = mean(if_else(.epred < 0, 1, 0))
       )
     
     pred_summary <- 
@@ -86,3 +95,14 @@ names(week_28_preds_summary) <- unique(week_28$matchup)
 
 saveRDS(week_28_preds_summary, "models/m2_wk28_preds.rds")
 
+week_28_preds_summary_2.1 <- 
+  map(
+    .x = unique(week_28$matchup),
+    ~week_28_preds_2.1 %>% 
+      filter(matchup == .x) %>% 
+      posterior_matchup_preds(.)
+  )
+
+names(week_28_preds_summary_2.1) <- unique(week_28$matchup)
+
+saveRDS(week_28_preds_summary_2.1, "models/m2_wk28_preds_2_1.rds")
