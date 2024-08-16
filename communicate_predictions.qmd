@@ -1,6 +1,10 @@
 ---
 title: "MLS Match Predictions"
-format: html
+format: 
+  html:
+    theme: 
+    - default
+    - custom.scss
 editor: visual
 ---
 
@@ -9,66 +13,145 @@ editor: visual
 library(kableExtra)
 library(tidyverse)
 
-# Get predictions
+# Get next match predictions
 next_week <- readRDS("models/m2_wk28_preds.rds")
-defense_wins_chips <- readRDS("models/m2_wk28_preds_2_1.rds")
+defense_wins_chips <- readRDS("models/m21_wk28_preds.rds")
 
-# Create tbl
-next_week_tbl <- 
-  map_df(
-  .x = next_week,
-  ~tibble(
-    match = .x$matchup_probs$matchup,
-    pr_home_win = .x$matchup_probs$pr_home_win,
-    pr_upset = .x$matchup_probs$pr_upset
-  ) %>% 
-    bind_cols(., .x$pred_distribution %>% t())
-  ) %>% 
-  modify_if(is.numeric, ~round(.,2)) 
+# Get expected standings
+e_table_m2 <- readRDS("models/standings_m2.rds")
+e_table_m21 <- readRDS("models/standings_m21.rds")
 
-defense_wins_chips_tbl <- 
-  map_df(
-  .x = defense_wins_chips,
-  ~tibble(
-    match = .x$matchup_probs$matchup,
-    pr_home_win = .x$matchup_probs$pr_home_win,
-    pr_upset = .x$matchup_probs$pr_upset
-  ) %>% 
-    bind_cols(., .x$pred_distribution %>% t())
-  ) %>% 
-  modify_if(is.numeric, ~round(.,2)) 
 ```
 
 ## Week 28 Predictions
 
--   Using a basic model that predicts the goal difference in each match.
+-   Using a baseline model that predicts the goal difference in each match.
 -   A positive goal difference means the home team is expected to score more goals.
 -   Matches are sorted based on the probability that the away team scores more goals (an upset).
 
-
+::: {.table-grid}
 ```{r, echo=FALSE}
-next_week_tbl %>% 
-  rename(xgoal_diff = `50%`) %>% 
-  mutate(xgoal_diff_ci = paste("[", `25%`, ", ", `75%`, "]", sep = "")) %>% 
-  select(match, xgoal_diff, xgoal_diff_ci, pr_upset, pr_home_win) %>% 
+next_week_clean <- 
+  next_week %>% 
+  ungroup() %>% 
+  select(matchup, e_goal_diff, e_goal_diff_ci, pr_home_win, pr_upset) %>% 
   arrange(desc(pr_upset)) %>% 
-  kbl(align = "lrrrr") %>% 
-  column_spec(2:5, width = "1in")
+  modify_if(is.numeric, ~round(.,2)) 
+
+next_week_clean %>% 
+  kbl(align = "lcccc") %>% 
+  column_spec(2:5, width = "1in") %>% 
+  column_spec(1, background = if_else(str_detect(next_week_clean$matchup, "Timbers"), "#00482B", "white")) %>% 
+  column_spec(1, color = if_else(str_detect(next_week_clean$matchup, "Timbers"), "#C79100", "black"))
   
 ```
+:::
 
 ### Defense Wins Championships
-- This model includes the number of tackles won by the away team and mistakes by the away team that resulted in a shot by the home team.
+
+-   This model includes the number of tackles won by the away team and mistakes by the away team that resulted in a shot by the home team.
 -   A positive goal difference means the home team is expected to score more goals.
 -   Matches are sorted based on the probability that the away team scores more goals (an upset).
 
+::: {.table-grid}
 ```{r, echo=FALSE}
-defense_wins_chips_tbl %>% 
-  rename(xgoal_diff = `50%`) %>% 
-  mutate(xgoal_diff_ci = paste("[", `25%`, ", ", `75%`, "]", sep = "")) %>% 
-  select(match, xgoal_diff, xgoal_diff_ci, pr_upset, pr_home_win) %>% 
+defense_clean <- 
+  defense_wins_chips %>% 
+  ungroup() %>% 
+  select(matchup, e_goal_diff, e_goal_diff_ci, pr_home_win, pr_upset) %>% 
   arrange(desc(pr_upset)) %>% 
-  kbl(align = "lrrrr") %>% 
-  column_spec(2:5, width = "1in")
-```
+  modify_if(is.numeric, ~round(.,2)) 
 
+defense_clean %>%
+  kbl(align = "lcccc") %>% 
+  column_spec(2:5, width = "1in") %>% 
+  column_spec(1, background = if_else(str_detect(defense_clean$matchup, "Timbers"), "#00482B", "white")) %>% 
+  column_spec(1, color = if_else(str_detect(defense_clean$matchup, "Timbers"), "#C79100", "black"))
+```
+:::
+
+## End-of-Season Expected Standings
+
+### Western Conference
+
+This table shows the expected standings at the end of the season based on match results so far (`r today()`) and our baseline model. The sum of current actual points (`a_total_points`) plus expected points from remaining matches (`e_total_points`) results in the total expected points for the season (`e_total`). The first seven teams automatically make the playoffs, while the 8th and ninth seeds go to a wild card game.
+
+Just for fun, the last two columns show how differently the *Defense Wins Championships* model expects the total points (`m_diff_total`) and standings (`m_diff_standings`) to be at the end of the season.
+
+::: {.table-grid}
+```{r, echo=FALSE}
+west_tbl <- 
+  e_table_m2 %>% 
+  filter(conference == "West") %>% 
+  select(-conference) %>% 
+  arrange(desc(e_total)) %>% 
+  mutate(
+    standing = 1:14
+  )
+
+west_tbl_21 <- 
+  e_table_m21 %>% 
+  filter(conference == "West") %>% 
+  rename(e_total_m21 = e_total) %>% 
+  select(-conference) %>% 
+  arrange(desc(e_total_m21)) %>% 
+  mutate(
+    standing_m21 = 1:14
+  ) %>% 
+  select(
+    team, e_total_m21, standing_m21
+  )
+
+# playoff cats
+playoff_cut <- west_tbl$e_total[7]
+wild_card <- west_tbl$e_total[8:9]
+
+# table
+west_tbl_all <-  
+  west_tbl %>% 
+  left_join(
+    .,
+    west_tbl_21,
+    by = "team"
+  ) %>% 
+  mutate(
+    m_diff_total = e_total - e_total_m21,
+    m_diff_standing = standing - standing_m21
+  ) %>% 
+  select(-e_total_m21, -standing_m21, -standing) 
+
+west_tbl_all %>% 
+  kbl(align = "lccccc") %>% 
+  column_spec(
+    1,
+    color = "white",
+    background = 
+      case_when(
+        west_tbl_all$e_total >= playoff_cut ~ "#00482B", 
+        west_tbl_all$e_total %in% wild_card ~ "#C79100",
+        T ~ "grey"
+        )
+    ) %>% 
+  column_spec(
+    5,
+    color = 
+      case_when(
+        west_tbl_all$m_diff_total > 0 ~ "#179BAE", 
+        west_tbl_all$m_diff_total < 0 ~ "#FF8343", 
+        T ~ "black"
+      )
+  ) %>% 
+  column_spec(
+    6,
+    color = 
+      case_when(
+        west_tbl_all$m_diff_standing > 0 ~ "#179BAE", 
+        west_tbl_all$m_diff_standing < 0 ~ "#FF8343", 
+        T ~ "black"
+      )
+  ) %>% 
+  add_header_above(
+    header = c(" " = 1, "Baseline Model" = 3, "DWC Model" = 2)
+  )
+```
+:::
