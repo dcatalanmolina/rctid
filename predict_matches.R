@@ -41,58 +41,7 @@ future_matches <-
   filter(Date > today()) %>% 
   mutate(matchup = paste(Home, "vs", Away, sep = " "))
 
-# 2. Predict single match ------------------------------------
-next_match <- 
-  tibble(
-    Home = "St. Louis",
-    Away = "Portland Timbers"
-  )
-
-pred_match <- 
-  add_predicted_draws(
-    next_match,
-    m2
-  )
-
-## Explore predictions
-summary(pred_match$.prediction)
-quantile(pred_match$.prediction, probs = c(.25, .75))
-
-pred_match %>% 
-  summarise(
-    pr_home_win = mean(if_else(.prediction > 0, 1, 0)),
-    pr_upset = mean(if_else(.prediction < 0, 1, 0))
-  )
-
-# 3. Predict next week --------------
-week_28 <- 
-  future_matches %>% 
-  filter(Wk == "28")
-
-# two sets of expected values, based on different models
-week_28_preds <- 
-  add_epred_draws(
-    week_28,
-    m2
-  )
-
-week_28_preds_2.1 <- 
-  add_epred_draws(
-    week_28,
-    m2.1
-  )
-
-# summarize predictions
-week_28_preds_summary_m2 <- 
-  posterior_matchup_summ(week_28_preds)
-
-week_28_preds_summary_m2.1 <- 
-  posterior_matchup_summ(week_28_preds_2.1)
-  
-saveRDS(week_28_preds_summary_m2, "models/m2_wk28_preds.rds")
-saveRDS(week_28_preds_summary_m2.1, "models/m21_wk28_preds.rds")
-
-# 4. Predict all remaining matches --------------
+# 2. Predict all remaining matches --------------
 
 # two sets of expected values, based on different models
 future_preds_m2 <- 

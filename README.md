@@ -1,33 +1,19 @@
-# rctid
-Code to get and analyze Portland Timbers' and Thorns' stats.
+# RCTID
 
-## Get data
-- From {worldfootballR}: https://usfootballr.sportsdataverse.org/index.html](https://github.com/JaseZiv/worldfootballR
-- From espn: (MLS) http://site.api.espn.com/apis/site/v2/sports/soccer/usa.1
+Code to get and analyze MLS stats. RCTID stands for 'Rose City 'til I Die', for all of us Portland Timbers fans. 
 
-### Example 
-```r
-library(httr2)
-library(worldfootballR)
-library(tidyverse)
+## Get and Clean Data
 
-# Fbref data
-mls_matches <-
-  fb_match_results(country = "USA", gender = "M", season_end_year = 2024, tier = "1st")
+`get_2024_football_data.R` gets 2024 matches and season-level stats for each team.
 
-# ESPN data
-espn_mls_scoreboard <- 
-  "http://site.api.espn.com/apis/site/v2/sports/soccer/usa.1"
+`get_2025_football_data.R` gets 2025 matches and season-level stats for each team.
 
-req_espn <- 
-  request(espn_mls_scoreboard)
-  
-mls <- 
-  req_espn %>% 
-  req_perform()
+`clean_football_data.R` cleans 2024 and 2025 data to prep for model predictions.
 
-mls_json <- 
-  mls %>% 
-  resp_body_json()
+## Model Predictions
 
-```
+`mls_model_v01.R` runs matchup models.
+
+`predict_matches.R` uses model outputs to predict goal differences for each match and expected standings.
+
+`communicate_predictions.qmd` renders HTML summarizing match and standing predictions.
