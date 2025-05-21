@@ -1,6 +1,6 @@
 # RCTID
 
-Code to get and analyze MLS stats. 
+Code to get and analyze MLS stats. RCTID stands for 'Rose City 'til I Die', for all of us Portland Timbers fans. 
 
 ## Get and Clean Data
 
