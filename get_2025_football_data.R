@@ -2,6 +2,7 @@
 # Getting 2025 Football Data
 #####################################
 
+library(devtools)
 # get worldfootballR
 devtools::install_github("JaseZiv/worldfootballR")
 
