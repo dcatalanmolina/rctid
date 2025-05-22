@@ -16,4 +16,4 @@ Code to get and analyze MLS stats. RCTID stands for 'Rose City 'til I Die', for 
 
 `predict_matches.R` uses model outputs to predict goal differences for each match and expected standings.
 
-`communicate_predictions.qmd` renders HTML summarizing match and standing predictions.
+`communicate_predictions.qmd` renders an HTML summarizing match and standing predictions.
