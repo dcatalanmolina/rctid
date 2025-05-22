@@ -28,12 +28,10 @@ jobs:
         Rscript -e 'source("get_2025_football_data.R")'
       
     - name: Commit results
-        env: 
-          RCTID_DAILY_DATA_TOKEN: ${{ secrets.RCTID_DAILY_DATA_TOKEN }}
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
           git add data/mls_25.rds
           git add data/mls_25_defense.rds
           git commit -m 'Data updated' || echo "No changes to commit"
-          git push https://${{ secrets.RCTID_DAILY_DATA_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
+          git push origin || echo "No changes to commit"
