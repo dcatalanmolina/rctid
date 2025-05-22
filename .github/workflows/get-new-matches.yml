@@ -29,8 +29,8 @@ jobs:
       
     - name: Commit results
         run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Actions"
+          git config --local user.email "dcatalanmolina@gmail.com"
+          git config --local user.name "dcatalanmolina"
           git add data/mls_25.rds
           git add data/mls_25_defense.rds
           git commit -m 'Data updated' || echo "No changes to commit"
