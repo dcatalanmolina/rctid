@@ -4,7 +4,7 @@
 
 library(devtools)
 # get worldfootballR
-devtools::install_github("JaseZiv/worldfootballR")
+install_github("JaseZiv/worldfootballR")
 
 library(worldfootballR)
 

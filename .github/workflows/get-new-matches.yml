@@ -21,7 +21,7 @@ jobs:
       
     - name: Install packages
       run: |
-        R -e "install.packages(c('dplyr', 'devtools'))"
+        R -e "install.packages('devtools')"
 
     - name: Import data
       run: |
