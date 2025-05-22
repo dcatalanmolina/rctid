@@ -2,8 +2,9 @@
 # Getting 2025 Football Data
 #####################################
 
-library(httr2)
-library(tidyverse)
+# get worldfootballR
+devtools::install_github("JaseZiv/worldfootballR")
+
 library(worldfootballR)
 
 # Match Results from FBref ------------------------
