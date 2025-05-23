@@ -2,9 +2,8 @@
 # Getting 2025 Football Data
 #####################################
 
-library(devtools)
 # get worldfootballR
-install_github("JaseZiv/worldfootballR")
+pak::pkg_install("JaseZiv/worldfootballR")
 
 library(worldfootballR)
 
