@@ -27,4 +27,21 @@ mls_25_defense <-
     stat_type = "defense"
   )
 
+mls_25_shooting <- 
+  fb_season_team_stats(
+    country = "USA", gender = "M", 
+    season_end_year = 2025, tier = "1st",
+    stat_type = "shooting"
+  )
+
+mls_25_standard <- 
+  fb_season_team_stats(
+    country = "USA", gender = "M", 
+    season_end_year = 2025, tier = "1st",
+    stat_type = "standard"
+  )
+
 saveRDS(mls_25_defense, "data/mls_25_defense.rds")
+saveRDS(mls_25_shooting, "data/mls_25_shooting.rds")
+saveRDS(mls_25_standard, "data/mls_25_standard.rds")
+
