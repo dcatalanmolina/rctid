@@ -6,12 +6,8 @@ posterior_matchup_summ <-
       group_by(Wk, matchup) %>% 
       summarise(
         e_goal_diff = quantile(.epred, probs = .50),
-        e_goal_diff_ci = 
-          paste(
-            "[", round(quantile(.epred, probs = .055), 2), ", ",
-            round(quantile(.epred, probs = .945),2),  "]",
-            sep = ""
-          ),
+        e_goal_ll = quantile(.epred, probs = .055),
+        e_goal_ul = quantile(.epred, probs = .945),
         pr_home_win = mean(if_else(.epred > 0.5, 1, 0)),
         pr_upset = mean(if_else(.epred < -0.5, 1, 0)),
         e_home_points = 
