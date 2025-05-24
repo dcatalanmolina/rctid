@@ -1,0 +1,77 @@
+# # 4. Matchup models ---------
+# m2 <- 
+#   brm(
+#     goal_diff ~ 1 + (1|Home) + (1|Away),
+#     data = mls_wide,
+#     warmup = 1000,
+#     iter = 5000,
+#     seed = 3
+#   )
+# 
+# saveRDS(
+#   m2, 
+#   paste("models/m2_", week_update, ".rds", sep = "")
+#   )
+# 
+# m2.1 <- 
+#   brm(
+#     goal_diff ~ 1 + Tkl_percent_Challenges_away*Err_away + (1|Home) + (1|Away),
+#     data = mls_wide,
+#     warmup = 1000,
+#     iter = 5000,
+#     seed = 3
+#   )
+# 
+# saveRDS(
+#   m2.1, 
+#   paste("models/m2_1", week_update, ".rds", sep = "")
+#   )
+# 
+# m2.2 <- 
+#   brm(
+#     goal_diff ~ 1 + Tkl_percent_Challenges_home*Err_home + Tkl_percent_Challenges_away*Err_away + (1|Home) + (1|Away),
+#     data = mls_wide,
+#     warmup = 1000,
+#     iter = 5000,
+#     seed = 3
+#   )
+# 
+# saveRDS(
+#   m2.2, 
+#   paste("models/m2_2", week_update, ".rds", sep = "")
+# )
+# 
+# # m23_weak_priors <- 
+# #   c(
+# #     set_prior("normal(0,1)", class = "b")
+# #   )
+# 
+# m2.3 <- #WYM win your matchup
+#   brm(
+#     goal_diff ~ 1 + home_edge + away_edge + (1|Home) + (1|Away),
+#     data = mls_wide,
+#     warmup = 1000,
+#     iter = 5000,
+#     seed = 3#,
+#     #prior = m23_weak_priors
+#   )
+# 
+# saveRDS(
+#   m2.3, 
+#   paste("models/m2_3", week_update, ".rds", sep = "")
+# )
+
+m2.4 <- #WYM win your matchup, interaction
+  brm(
+    goal_diff ~ 1 + home_edge*away_edge + (1|Home) + (1|Away),
+    data = mls_wide,
+    warmup = 1500,
+    iter = 8000,
+    seed = 3#,
+    #prior = m23_weak_priors
+  )
+
+saveRDS(
+  m2.4, 
+  paste("models/m2_4", week_update, ".rds", sep = "")
+)
