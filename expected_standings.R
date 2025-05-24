@@ -1,6 +1,7 @@
 expected_standings <- 
   function(
     df_mls, #mls_wide
+    year, #current year
     df_future, #future_matches
     m #match preds
     ) {
@@ -51,6 +52,7 @@ expected_standings <-
     # actual points thus far
     actual_home_points <- 
       df_mls %>% 
+      filter(Season_End_Year == year) %>% 
       rename(team = Home) %>% 
       group_by(team) %>% 
       summarise(
@@ -59,6 +61,7 @@ expected_standings <-
     
     actual_away_points <- 
       df_mls %>% 
+      filter(Season_End_Year == year) %>%
       rename(team = Away) %>% 
       group_by(team) %>% 
       summarise(
