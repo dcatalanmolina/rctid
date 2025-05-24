@@ -7,8 +7,7 @@ library(tidyverse)
 library(brms)
 library(tidybayes)
 
-m2 <- readRDS("models/m2.rds")
-m2.1 <- readRDS("models/m2_1.rds")
+m_today <- readRDS("models/m2_4.rds")
 
 # funs
 source("posterior_matchup_summ.R")
@@ -43,40 +42,26 @@ future_matches <-
 
 # 2. Predict all remaining matches --------------
 
-# two sets of expected values, based on different models
-future_preds_m2 <- 
+# expected values
+future_preds <- 
   add_epred_draws(
     future_matches,
-    m2
+    m_today
   )
 
-future_preds_m2.1 <- 
-  add_epred_draws(
-    future_matches,
-    m2.1
-  )
+saveRDS(
+  future_preds, 
+  paste("models/m2.4_future_preds.rds", sep = ""))
 
-saveRDS(future_preds_m2, paste("models/m2_future_preds_", today(), ".rds", sep = ""))
-saveRDS(future_preds_m2.1, paste("models/m21_future_preds_", today(), ".rds", sep = ""))
 
 # posterior summaries
-future_preds_m2_summary <- 
-  posterior_matchup_summ(future_preds_m2)
+future_preds_summary <- 
+  posterior_matchup_summ(future_preds)
  
-future_preds_m21_summary <- 
-  posterior_matchup_summ(future_preds_m2.1)
-
-standings_m2 <- 
+standings <- 
   expected_standings(
     mls_wide, future_matches, 
-    future_preds_m2_summary
+    future_preds_summary
   )
 
-standings_m21 <- 
-  expected_standings(
-    mls_wide, future_matches, 
-    future_preds_m21_summary
-  )
-
-saveRDS(standings_m2, "models/standings_m2.rds")
-saveRDS(standings_m21, "models/standings_m21.rds")
+saveRDS(standings, "models/m2.4_standings.rds")
