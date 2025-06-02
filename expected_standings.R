@@ -8,18 +8,19 @@ expected_standings <-
     # west string
     west_conf <- 
       c(
-        "LA Galaxy", "LAFC", "RSL", "Rapids",
-        "Vancouver W'caps", "Austin", "Dynamo FC",
+        "LA Galaxy", "LAFC", "Real Salt Lake", "Colorado Rapids",
+        "Vancouver W'caps", "Austin", "Houston Dynamo",
         "FC Dallas", "Minnesota Utd", "Portland Timbers",
-        "SJ Earthquakes", "Seattle", "Sporting KC","St. Louis"
+        "SJ Earthquakes", "Seattle Sounders", "Sporting KC", 
+        "St. Louis", "San Diego FC"
       )
     
     # expected team points for the rest of the season
     future_matches_preds <- 
       left_join(
-        future_matches,
+        df_future,
         m,
-        by = c("Wk", "matchup")
+        by = c("Date", "matchup")
       )
     
     future_home_points <- 

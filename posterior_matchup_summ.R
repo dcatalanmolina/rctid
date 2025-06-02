@@ -3,7 +3,7 @@ posterior_matchup_summ <-
     
     preds_df <- 
       df %>% 
-      group_by(Wk, matchup) %>% 
+      group_by(Date, matchup) %>% 
       summarise(
         e_goal_diff = quantile(.epred, probs = .50),
         e_goal_diff_ci = 

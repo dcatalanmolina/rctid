@@ -17,6 +17,7 @@ source("expected_standings.R")
 # get match df
 mls_wide <- 
   readRDS("data/mls_wide.rds") %>% 
+  filter(Season_End_Year == "2025") %>% 
   mutate(
     a_home_points = #actual
       case_when(
