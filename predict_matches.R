@@ -67,6 +67,9 @@ future_preds_m2_summary <-
 future_preds_m21_summary <- 
   posterior_matchup_summ(future_preds_m2.1)
 
+saveRDS(future_preds_m2_summary, paste("models/m2_future_preds_summary", today(), ".rds", sep = ""))
+saveRDS(future_preds_m21_summary, paste("models/m21_future_preds_summary", today(), ".rds", sep = ""))
+
 standings_m2 <- 
   expected_standings(
     mls_wide, future_matches, 
